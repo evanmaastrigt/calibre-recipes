@@ -1,2 +1,9 @@
 .project
 .pydevproject
+*/debug/input
+*/debug/parsed
+*/debug/processed
+*/debug/structure
+*/debug/periodical.downloaded_recipe
+*.epub
+*.zip

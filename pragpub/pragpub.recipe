@@ -1,0 +1,39 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012 Edwin van Maastrigt'
+
+import os, urllib2
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ebooks.conversion.cli import main
+
+class PragPub(BasicNewsRecipe):
+
+    title = u'title'
+    description = u'description'
+    language = 'en'
+    __author__ = 'Edwin van Maastrigt'
+
+    conversion_options = {'no_default_epub_cover' : True}
+    
+    def build_index(self):
+        url = 'http://pragprog.com/magazines/download/34.epub'
+
+        file = urllib2.urlopen(url)
+        
+        tmp = PersistentTemporaryFile(suffix = '.epub')
+        self.report_progress(0.1,_('Downloading epub'))
+        tmp.write(file.read())
+        file.close()
+        tmp.close()
+
+        # convert
+        self.report_progress(0.2,_('Converting to OEB'))
+        oebdir = self.output_dir + '/INPUT/'
+        main(['ebook-convert', tmp.name, oebdir])
+
+        # feed calibre
+        index = os.path.join(oebdir, 'content.opf')
+        
+        return index
+        
+        

@@ -1,0 +1,37 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012 Edwin van Maastrigt'
+
+import os, urllib2
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ebooks.conversion.cli import main
+
+class DeNieuwePers(BasicNewsRecipe):
+
+    title = u'De Nieuwe Pers (ePub)'
+    description = u'De ePub-versie van De Nieuwe Pers (voorheen De Pers)'
+    language = 'nl_NL'
+    __author__ = 'Edwin van Maastrigt'
+
+    conversion_options = {'no_default_epub_cover' : True}
+    
+    def build_index(self):
+        url = "http://dp.x-cago.net/pdf/DePers.epub"
+        file = urllib2.urlopen(url)
+        
+        tmp = PersistentTemporaryFile(suffix = '.epub')
+        self.report_progress(0.01,_('Downloading epub'))
+        tmp.write(file.read())
+        file.close()
+        tmp.close()
+
+        # convert
+        self.report_progress(0.02,_('Converting to OEB'))
+        oebdir = self.output_dir + '/INPUT/'
+        main(['ebook-convert', tmp.name, oebdir])
+
+        # feed calibre
+        index = os.path.join(oebdir, 'content.opf')
+        
+        return index
+        
